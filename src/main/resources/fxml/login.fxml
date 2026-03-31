@@ -46,6 +46,11 @@
                 style="-fx-background-color: #3d85c8; -fx-text-fill: white; -fx-font-size: 14px;
                        -fx-font-weight: bold; -fx-background-radius: 5; -fx-pref-height: 45; -fx-cursor: hand;"
                 maxWidth="Infinity"/>
+
+        <Button text="Регистрация" onAction="#handleRegister"
+                style="-fx-background-color: transparent; -fx-text-fill: #3d85c8; -fx-font-size: 13px;
+                       -fx-cursor: hand; -fx-border-color: #3d85c8; -fx-border-radius: 5; -fx-pref-height: 35;"
+                maxWidth="Infinity"/>
     </VBox>
 
     <Label text="По умолчанию: admin / admin123" style="-fx-text-fill: #555555; -fx-font-size: 11px;"/>

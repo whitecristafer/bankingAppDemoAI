@@ -70,6 +70,29 @@ public class TuiApp {
     }
 
     /**
+     * Расширенный конструктор со всеми сервисами.
+     *
+     * @param userService        сервис пользователей
+     * @param accountService     сервис счетов
+     * @param transactionService сервис транзакций
+     * @param cardService        сервис карт (может быть null)
+     * @param contactService     сервис контактов (может быть null)
+     * @param currencyService    сервис валют (может быть null)
+     * @param settingsService    сервис настроек (может быть null)
+     */
+    public TuiApp(UserService userService, AccountService accountService,
+                  TransactionService transactionService,
+                  ru.whitecristafer.banking.service.CardService cardService,
+                  ru.whitecristafer.banking.service.ContactService contactService,
+                  ru.whitecristafer.banking.service.CurrencyService currencyService,
+                  ru.whitecristafer.banking.service.SettingsService settingsService) {
+        this.userService = userService;
+        this.accountService = accountService;
+        this.transactionService = transactionService;
+        // Дополнительные сервисы игнорируются в базовой TUI-реализации
+    }
+
+    /**
      * Запускает TUI-приложение.
      * Инициализирует Lanterna terminal, настраивает экран и запускает основной цикл.
      */

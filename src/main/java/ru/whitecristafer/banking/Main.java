@@ -7,6 +7,10 @@ import ru.whitecristafer.banking.db.DatabaseInitializer;
 import ru.whitecristafer.banking.db.DatabaseManager;
 import ru.whitecristafer.banking.gui.MainApp;
 import ru.whitecristafer.banking.service.AccountService;
+import ru.whitecristafer.banking.service.CardService;
+import ru.whitecristafer.banking.service.ContactService;
+import ru.whitecristafer.banking.service.CurrencyService;
+import ru.whitecristafer.banking.service.SettingsService;
 import ru.whitecristafer.banking.service.TransactionService;
 import ru.whitecristafer.banking.service.UserService;
 import ru.whitecristafer.banking.tui.TuiApp;
@@ -43,9 +47,21 @@ public class Main {
         // Настраиваем путь к директории логов ДО инициализации Log4j2
         System.setProperty("banking.logs.dir", AppPaths.getLogsDir().getAbsolutePath());
 
+        // Проверка операционной системы — MagaBank работает только на Windows
+        boolean skipOsCheck = "true".equalsIgnoreCase(System.getProperty("banking.skip.os.check"));
+        if (!skipOsCheck) {
+            String os = System.getProperty("os.name", "").toLowerCase();
+            if (!os.contains("windows")) {
+                System.err.println("Приложение MagaBank предназначено только для Windows. Запустите его на операционной системе Windows.");
+                logger.error("Запуск на неподдерживаемой ОС: {}", os);
+                System.exit(1);
+            }
+        }
+
         logger.info("============================================");
-        logger.info("BankingApp запускается — версия 1.0.0");
+        logger.info("MagaBank — ООО «МагаБанк» — версия 1.0.0");
         logger.info("Разработчик: whitecristafer");
+        logger.info("GitHub: https://github.com/whitecristafer/bankingAppDemoAI/");
         logger.info("AppData директория: {}", AppPaths.getAppDataDir().getAbsolutePath());
         logger.info("База данных: {}", AppPaths.getDatabaseFile().getAbsolutePath());
         logger.info("============================================");
@@ -85,8 +101,13 @@ public class Main {
             UserService userService = new UserService(dbManager);
             AccountService accountService = new AccountService(dbManager);
             TransactionService transactionService = new TransactionService(dbManager, accountService);
+            CardService cardService = new CardService(dbManager);
+            ContactService contactService = new ContactService(dbManager);
+            CurrencyService currencyService = new CurrencyService(dbManager);
+            SettingsService settingsService = new SettingsService(dbManager);
 
-            TuiApp tuiApp = new TuiApp(userService, accountService, transactionService);
+            TuiApp tuiApp = new TuiApp(userService, accountService, transactionService,
+                    cardService, contactService, currencyService, settingsService);
             tuiApp.start();
         } catch (Exception e) {
             logger.error("Критическая ошибка в TUI-режиме", e);

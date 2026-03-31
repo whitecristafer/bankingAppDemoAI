@@ -10,7 +10,12 @@ import org.apache.logging.log4j.Logger;
 import ru.whitecristafer.banking.db.DatabaseInitializer;
 import ru.whitecristafer.banking.db.DatabaseManager;
 import ru.whitecristafer.banking.service.AccountService;
+import ru.whitecristafer.banking.service.CardService;
+import ru.whitecristafer.banking.service.ContactService;
+import ru.whitecristafer.banking.service.CurrencyService;
+import ru.whitecristafer.banking.service.SettingsService;
 import ru.whitecristafer.banking.service.TransactionService;
+import ru.whitecristafer.banking.service.UpdateService;
 import ru.whitecristafer.banking.service.UserService;
 
 import java.util.Objects;
@@ -45,6 +50,18 @@ public class MainApp extends Application {
     /** Сервис транзакций — депозит, снятие, перевод, история */
     public static TransactionService transactionService;
 
+    /** Сервис виртуальных карт */
+    public static CardService cardService;
+
+    /** Сервис контактов пользователя */
+    public static ContactService contactService;
+
+    /** Сервис курсов валют */
+    public static CurrencyService currencyService;
+
+    /** Сервис настроек приложения */
+    public static SettingsService settingsService;
+
     /** Главный Stage (окно приложения) — используется для смены экранов */
     private static Stage primaryStage;
 
@@ -60,6 +77,10 @@ public class MainApp extends Application {
         userService = new UserService(dbManager);
         accountService = new AccountService(dbManager);
         transactionService = new TransactionService(dbManager, accountService);
+        cardService = new CardService(dbManager);
+        contactService = new ContactService(dbManager);
+        currencyService = new CurrencyService(dbManager);
+        settingsService = new SettingsService(dbManager);
         logger.info("Сервисы инициализированы");
     }
 
@@ -72,9 +93,12 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         primaryStage = stage;
-        stage.setTitle("🏦 Банковское приложение — whitecristafer");
+        stage.setTitle("🏦 MagaBank — ООО «МагаБанк»");
         stage.setMinWidth(900);
         stage.setMinHeight(620);
+
+        // Асинхронная проверка обновлений при старте
+        new Thread(() -> new UpdateService().checkForUpdates("v1.0.0")).start();
 
         loadScreen("/fxml/login.fxml");
 
@@ -106,18 +130,28 @@ public class MainApp extends Application {
         try {
             Parent root = FXMLLoader.load(Objects.requireNonNull(
                     MainApp.class.getResource(fxmlPath)));
+            // Определяем тему: light или dark
+            String theme = (settingsService != null) ? settingsService.getTheme() : "dark";
+            String cssFile = "light".equalsIgnoreCase(theme) ? "/css/style-light.css" : "/css/style.css";
             Scene scene = primaryStage.getScene();
             if (scene == null) {
                 scene = new Scene(root, 1000, 700);
                 try {
                     scene.getStylesheets().add(
-                            Objects.requireNonNull(MainApp.class.getResource("/css/style.css")).toExternalForm());
+                            Objects.requireNonNull(MainApp.class.getResource(cssFile)).toExternalForm());
                 } catch (NullPointerException e) {
-                    logger.warn("CSS-файл не найден, используются стандартные стили");
+                    logger.warn("CSS-файл не найден: {}", cssFile);
                 }
                 primaryStage.setScene(scene);
             } else {
                 scene.setRoot(root);
+                scene.getStylesheets().clear();
+                try {
+                    scene.getStylesheets().add(
+                            Objects.requireNonNull(MainApp.class.getResource(cssFile)).toExternalForm());
+                } catch (NullPointerException e) {
+                    logger.warn("CSS-файл не найден: {}", cssFile);
+                }
             }
             logger.debug("Загружен экран: {}", fxmlPath);
         } catch (Exception e) {
