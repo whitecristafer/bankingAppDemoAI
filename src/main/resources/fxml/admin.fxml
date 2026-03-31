@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+    Панель администратора — управление пользователями и счетами.
+    Контроллер: AdminController.java
+    Предоставляет полный CRUD для пользователей и счетов.
+-->
+<BorderPane style="-fx-background-color: #1a0a2e;"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="ru.whitecristafer.banking.gui.AdminController">
+
+    <!-- Верхняя панель администратора -->
+    <top>
+        <HBox style="-fx-background-color: #2d1b69; -fx-padding: 10 20;" alignment="CENTER_LEFT" spacing="15">
+            <Label text="⚙️" style="-fx-font-size: 20px;"/>
+            <Label text="ПАНЕЛЬ АДМИНИСТРАТОРА" style="-fx-text-fill: #e0d0ff; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label fx:id="adminNameLabel" text="" style="-fx-text-fill: #bb99ff; -fx-font-size: 13px;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="adminStatusLabel" text="" style="-fx-font-size: 12px;" wrapText="true" maxWidth="400"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Выйти" onAction="#handleLogout"
+                    style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-cursor: hand;"/>
+        </HBox>
+    </top>
+
+    <!-- Основное содержимое: две вкладки -->
+    <center>
+        <TabPane style="-fx-tab-min-height: 35; -fx-padding: 5;">
+
+            <!-- Вкладка управления пользователями -->
+            <Tab text="👥 Пользователи" closable="false">
+                <VBox spacing="10" style="-fx-padding: 10;">
+
+                    <!-- Таблица пользователей -->
+                    <TableView fx:id="usersTable" prefHeight="280">
+                        <columns>
+                            <TableColumn fx:id="colUserId" text="ID" prefWidth="50"/>
+                            <TableColumn fx:id="colUsername" text="Логин" prefWidth="130"/>
+                            <TableColumn fx:id="colFullName" text="Полное имя" prefWidth="180"/>
+                            <TableColumn fx:id="colEmail" text="Email" prefWidth="180"/>
+                            <TableColumn fx:id="colRole" text="Роль" prefWidth="130"/>
+                            <TableColumn fx:id="colUserStatus" text="Статус" prefWidth="120"/>
+                        </columns>
+                    </TableView>
+
+                    <!-- Кнопки управления пользователями -->
+                    <HBox spacing="10">
+                        <Button text="🔒 Заблокировать/Разблокировать" onAction="#handleToggleBlock"
+                                style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        <Button text="🗑 Удалить пользователя" onAction="#handleDeleteUser"
+                                style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <!-- Форма создания нового пользователя -->
+                    <TitledPane text="➕ Создать нового пользователя" collapsible="true" expanded="false">
+                        <GridPane hgap="10" vgap="8" style="-fx-padding: 10;">
+                            <Label text="Логин:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-text-fill: #cccccc;"/>
+                            <TextField fx:id="newUsernameField" promptText="username" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="200"/>
+
+                            <Label text="Пароль:" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-text-fill: #cccccc;"/>
+                            <PasswordField fx:id="newPasswordField" promptText="минимум 6 символов + цифра" GridPane.columnIndex="1" GridPane.rowIndex="1" prefWidth="200"/>
+
+                            <Label text="Полное имя:" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-text-fill: #cccccc;"/>
+                            <TextField fx:id="newFullNameField" promptText="Иван Иванов" GridPane.columnIndex="1" GridPane.rowIndex="2" prefWidth="200"/>
+
+                            <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-text-fill: #cccccc;"/>
+                            <TextField fx:id="newEmailField" promptText="email@example.com" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="200"/>
+
+                            <Label text="Администратор:" GridPane.columnIndex="0" GridPane.rowIndex="4" style="-fx-text-fill: #cccccc;"/>
+                            <CheckBox fx:id="newIsAdminCheck" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+                            <Button text="✓ Создать пользователя" onAction="#handleCreateUser"
+                                    GridPane.columnIndex="1" GridPane.rowIndex="5"
+                                    style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        </GridPane>
+                    </TitledPane>
+                </VBox>
+            </Tab>
+
+            <!-- Вкладка управления счетами -->
+            <Tab text="💳 Счета" closable="false">
+                <VBox spacing="10" style="-fx-padding: 10;">
+
+                    <!-- Таблица счетов -->
+                    <TableView fx:id="accountsTable" prefHeight="280">
+                        <columns>
+                            <TableColumn fx:id="colAccId" text="ID" prefWidth="50"/>
+                            <TableColumn fx:id="colAccUserId" text="UserID" prefWidth="70"/>
+                            <TableColumn fx:id="colAccNumber" text="Номер счёта" prefWidth="140"/>
+                            <TableColumn fx:id="colAccBalance" text="Баланс" prefWidth="110"/>
+                            <TableColumn fx:id="colAccCurrency" text="Валюта" prefWidth="70"/>
+                            <TableColumn fx:id="colAccType" text="Тип" prefWidth="100"/>
+                            <TableColumn fx:id="colAccStatus" text="Статус" prefWidth="100"/>
+                        </columns>
+                    </TableView>
+
+                    <!-- Кнопки управления счетами -->
+                    <HBox spacing="10">
+                        <Button text="❄ Заморозить/Разморозить" onAction="#handleToggleAccount"
+                                style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        <Button text="🗑 Удалить счёт" onAction="#handleDeleteAccount"
+                                style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <!-- Форма создания счёта -->
+                    <TitledPane text="➕ Создать счёт для пользователя" collapsible="true" expanded="false">
+                        <GridPane hgap="10" vgap="8" style="-fx-padding: 10;">
+                            <Label text="ID пользователя:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-text-fill: #cccccc;"/>
+                            <TextField fx:id="newAccUserIdField" promptText="1" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="150"/>
+
+                            <Label text="Валюта:" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-text-fill: #cccccc;"/>
+                            <ComboBox fx:id="newAccCurrencyCombo" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                            <Label text="Тип счёта:" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-text-fill: #cccccc;"/>
+                            <ComboBox fx:id="newAccTypeCombo" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                            <Button text="✓ Создать счёт" onAction="#handleCreateAccount"
+                                    GridPane.columnIndex="1" GridPane.rowIndex="3"
+                                    style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        </GridPane>
+                    </TitledPane>
+                </VBox>
+            </Tab>
+
+        </TabPane>
+    </center>
+</BorderPane>

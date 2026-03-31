@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+    Дашборд пользователя — отображает счета и операции.
+    Контроллер: DashboardController.java
+-->
+<BorderPane style="-fx-background-color: #1a1a2e;"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="ru.whitecristafer.banking.gui.DashboardController">
+
+    <!-- Верхняя панель -->
+    <top>
+        <HBox style="-fx-background-color: #16213e; -fx-padding: 10 20;" alignment="CENTER_LEFT" spacing="20">
+            <Label text="🏦" style="-fx-font-size: 22px;"/>
+            <Label fx:id="welcomeLabel" text="Добро пожаловать!"
+                   style="-fx-text-fill: #e0e0e0; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Выйти" onAction="#handleLogout"
+                    style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-cursor: hand;"/>
+        </HBox>
+    </top>
+
+    <!-- Основное содержимое -->
+    <center>
+        <VBox spacing="15" style="-fx-padding: 15;">
+
+            <!-- Статусная строка -->
+            <Label fx:id="statusLabel" text="" style="-fx-font-size: 13px;"/>
+
+            <!-- Мои счета -->
+            <TitledPane text="💳 Мои счета" collapsible="false"
+                        style="-fx-text-fill: white; -fx-base: #16213e;">
+                <TableView fx:id="accountsTable" prefHeight="150">
+                    <columns>
+                        <TableColumn fx:id="colAccountNumber" text="Номер счёта" prefWidth="150"/>
+                        <TableColumn fx:id="colBalance" text="Баланс" prefWidth="120"/>
+                        <TableColumn fx:id="colCurrency" text="Валюта" prefWidth="80"/>
+                        <TableColumn fx:id="colAccountType" text="Тип" prefWidth="110"/>
+                        <TableColumn fx:id="colAccountStatus" text="Статус" prefWidth="100"/>
+                    </columns>
+                </TableView>
+            </TitledPane>
+
+            <!-- Операции со счётом -->
+            <HBox spacing="15">
+                <!-- Пополнение -->
+                <VBox spacing="8" style="-fx-background-color: #16213e; -fx-padding: 15; -fx-background-radius: 8;" HBox.hgrow="ALWAYS">
+                    <Label text="💰 Пополнение" style="-fx-text-fill: #27ae60; -fx-font-weight: bold;"/>
+                    <TextField fx:id="depositAmountField" promptText="Сумма"
+                               style="-fx-background-color: #0f3460; -fx-text-fill: white; -fx-prompt-text-fill: #666;"/>
+                    <Button text="Пополнить" onAction="#handleDeposit" maxWidth="Infinity"
+                            style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand;"/>
+                </VBox>
+
+                <!-- Снятие -->
+                <VBox spacing="8" style="-fx-background-color: #16213e; -fx-padding: 15; -fx-background-radius: 8;" HBox.hgrow="ALWAYS">
+                    <Label text="📤 Снятие" style="-fx-text-fill: #e74c3c; -fx-font-weight: bold;"/>
+                    <TextField fx:id="withdrawAmountField" promptText="Сумма"
+                               style="-fx-background-color: #0f3460; -fx-text-fill: white; -fx-prompt-text-fill: #666;"/>
+                    <Button text="Снять" onAction="#handleWithdraw" maxWidth="Infinity"
+                            style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"/>
+                </VBox>
+
+                <!-- Перевод -->
+                <VBox spacing="8" style="-fx-background-color: #16213e; -fx-padding: 15; -fx-background-radius: 8;" HBox.hgrow="ALWAYS">
+                    <Label text="📨 Перевод" style="-fx-text-fill: #3d85c8; -fx-font-weight: bold;"/>
+                    <TextField fx:id="transferToField" promptText="Номер счёта получателя"
+                               style="-fx-background-color: #0f3460; -fx-text-fill: white; -fx-prompt-text-fill: #666;"/>
+                    <TextField fx:id="transferAmountField" promptText="Сумма"
+                               style="-fx-background-color: #0f3460; -fx-text-fill: white; -fx-prompt-text-fill: #666;"/>
+                    <TextField fx:id="transferDescField" promptText="Описание (необязательно)"
+                               style="-fx-background-color: #0f3460; -fx-text-fill: white; -fx-prompt-text-fill: #666;"/>
+                    <Button text="Перевести" onAction="#handleTransfer" maxWidth="Infinity"
+                            style="-fx-background-color: #3d85c8; -fx-text-fill: white; -fx-cursor: hand;"/>
+                </VBox>
+            </HBox>
+
+            <!-- История транзакций -->
+            <TitledPane text="📜 История транзакций (выберите счёт выше)" collapsible="false"
+                        style="-fx-text-fill: white; -fx-base: #16213e;" VBox.vgrow="ALWAYS">
+                <TableView fx:id="transactionsTable" prefHeight="200">
+                    <columns>
+                        <TableColumn fx:id="colTxType" text="Тип" prefWidth="120"/>
+                        <TableColumn fx:id="colTxAmount" text="Сумма" prefWidth="120"/>
+                        <TableColumn fx:id="colTxDate" text="Дата" prefWidth="160"/>
+                        <TableColumn fx:id="colTxDesc" text="Описание" prefWidth="300"/>
+                    </columns>
+                </TableView>
+            </TitledPane>
+        </VBox>
+    </center>
+</BorderPane>
