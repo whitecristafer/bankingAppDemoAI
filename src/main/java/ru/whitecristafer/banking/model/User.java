@@ -35,6 +35,32 @@ public class User {
     /** Признак блокировки учётной записи */
     private boolean blocked;
 
+    /** Телефон в нормализованном формате +7XXXXXXXXXX */
+    private String phone;
+    /** Серия паспорта — 4 цифры */
+    private String passportSeries;
+    /** Номер паспорта — 6 цифр */
+    private String passportNumber;
+    /** Кем выдан паспорт */
+    private String passportIssuedBy;
+    /** Дата выдачи паспорта */
+    private String passportIssuedDate;
+    /** СНИЛС в формате XXX-XXX-XXX XX */
+    private String snils;
+    /** ИНН — 12 цифр для физ. лиц, 10 для юр. лиц */
+    private String inn;
+    /** Тип клиента */
+    private ClientType clientType;
+    /** Название организации (для юр. лиц) */
+    private String legalEntityName;
+
+    /** Перечисление типов клиентов */
+    public enum ClientType {
+        INDIVIDUAL,         // физическое лицо
+        LEGAL_ENTITY,       // юридическое лицо
+        INDIVIDUAL_ENTREPRENEUR // индивидуальный предприниматель
+    }
+
     /**
      * Конструктор по умолчанию — требуется для JDBC маппинга.
      */
@@ -83,6 +109,25 @@ public class User {
 
     public boolean isBlocked() { return blocked; }
     public void setBlocked(boolean blocked) { this.blocked = blocked; }
+
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+    public String getPassportSeries() { return passportSeries; }
+    public void setPassportSeries(String passportSeries) { this.passportSeries = passportSeries; }
+    public String getPassportNumber() { return passportNumber; }
+    public void setPassportNumber(String passportNumber) { this.passportNumber = passportNumber; }
+    public String getPassportIssuedBy() { return passportIssuedBy; }
+    public void setPassportIssuedBy(String passportIssuedBy) { this.passportIssuedBy = passportIssuedBy; }
+    public String getPassportIssuedDate() { return passportIssuedDate; }
+    public void setPassportIssuedDate(String passportIssuedDate) { this.passportIssuedDate = passportIssuedDate; }
+    public String getSnils() { return snils; }
+    public void setSnils(String snils) { this.snils = snils; }
+    public String getInn() { return inn; }
+    public void setInn(String inn) { this.inn = inn; }
+    public ClientType getClientType() { return clientType; }
+    public void setClientType(ClientType clientType) { this.clientType = clientType; }
+    public String getLegalEntityName() { return legalEntityName; }
+    public void setLegalEntityName(String legalEntityName) { this.legalEntityName = legalEntityName; }
 
     @Override
     public String toString() {

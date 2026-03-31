@@ -37,6 +37,20 @@ public class Account {
     /** Признак активности счёта (false — счёт заморожен) */
     private boolean active;
 
+    /** Подтип счёта */
+    private AccountSubtype accountSubtype;
+    /** Название организации (для юр. лиц) */
+    private String legalEntityName;
+
+    /**
+     * Перечисление подтипов счетов.
+     */
+    public enum AccountSubtype {
+        PERSONAL,  // личный
+        CURRENT,   // расчётный (для юр. лиц)
+        DEPOSIT    // депозитный
+    }
+
     /**
      * Перечисление типов банковских счетов.
      */
@@ -96,6 +110,11 @@ public class Account {
 
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
+
+    public AccountSubtype getAccountSubtype() { return accountSubtype; }
+    public void setAccountSubtype(AccountSubtype accountSubtype) { this.accountSubtype = accountSubtype; }
+    public String getLegalEntityName() { return legalEntityName; }
+    public void setLegalEntityName(String legalEntityName) { this.legalEntityName = legalEntityName; }
 
     @Override
     public String toString() {

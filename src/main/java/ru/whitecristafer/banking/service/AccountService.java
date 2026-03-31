@@ -46,13 +46,19 @@ public class AccountService {
 
     /**
      * Создаёт новый банковский счёт для пользователя.
+     * Суммарное количество счетов и карт не может превышать 10.
      *
      * @param userId      идентификатор владельца счёта
      * @param currency    валюта счёта (например, "RUB", "USD")
      * @param accountType тип счёта (CHECKING или SAVINGS)
      * @return созданный объект Account с присвоенным ID и номером счёта
+     * @throws IllegalStateException если достигнут общий лимит счетов и карт
      */
     public Account createAccount(int userId, String currency, AccountType accountType) {
+        // Проверяем суммарный лимит счетов + карт
+        if (getTotalAccountsAndCards(userId) >= 10) {
+            throw new IllegalStateException("Достигнут максимальный лимит счетов и карт (10)");
+        }
         String accountNumber = generateAccountNumber();
         String sql = """
                 INSERT INTO accounts (user_id, account_number, balance, currency, account_type)
@@ -211,6 +217,43 @@ public class AccountService {
             number = String.format("ACC-%06d", accountCounter.getAndIncrement());
         } while (findByAccountNumber(number).isPresent());
         return number;
+    }
+
+    /**
+     * Возвращает суммарное количество счетов и карт пользователя.
+     * Используется для проверки общего лимита (не более 10).
+     * Если таблица virtual_cards ещё не создана — учитываются только счета.
+     *
+     * @param userId идентификатор пользователя
+     * @return суммарное количество счетов и карт
+     */
+    public int getTotalAccountsAndCards(int userId) {
+        // Считаем количество счетов
+        int accountCount = 0;
+        String accountSql = "SELECT COUNT(*) FROM accounts WHERE user_id = ?";
+        try (PreparedStatement pstmt = dbManager.getConnection().prepareStatement(accountSql)) {
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) accountCount = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            logger.error("Ошибка подсчёта счетов пользователя ID={}", userId, e);
+        }
+
+        // Считаем количество карт (таблица может ещё не существовать)
+        int cardCount = 0;
+        String cardSql = "SELECT COUNT(*) FROM virtual_cards WHERE user_id = ?";
+        try (PreparedStatement pstmt = dbManager.getConnection().prepareStatement(cardSql)) {
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) cardCount = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            // Таблица virtual_cards может отсутствовать на момент проверки
+            logger.debug("Таблица virtual_cards недоступна при подсчёте: {}", e.getMessage());
+        }
+
+        return accountCount + cardCount;
     }
 
     /**

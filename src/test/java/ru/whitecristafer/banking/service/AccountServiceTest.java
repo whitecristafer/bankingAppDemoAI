@@ -70,6 +70,29 @@ class AccountServiceTest {
     }
 
     /**
+     * Вспомогательный метод: создаёт нового пользователя для теста с уникальным именем.
+     * Используется в тестах, которые иначе превысили бы лимит счётов на пользователя.
+     *
+     * @param suffix суффикс имени пользователя (для уникальности)
+     * @return идентификатор созданного пользователя
+     */
+    private static int createExtraUser(String suffix) {
+        try (var conn = dbManager.getConnection();
+             var pstmt = conn.prepareStatement(
+                     "INSERT INTO users (username, password_hash, full_name, is_admin) VALUES (?, 'hash', 'Extra Test', 0)",
+                     java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, "extratest_" + suffix);
+            pstmt.executeUpdate();
+            try (var keys = pstmt.getGeneratedKeys()) {
+                if (keys.next()) return keys.getInt(1);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Не удалось создать дополнительного тестового пользователя", e);
+        }
+        throw new RuntimeException("Не удалось получить ID дополнительного пользователя");
+    }
+
+    /**
      * Тест: создание счёта для пользователя.
      */
     @Test
@@ -223,7 +246,8 @@ class AccountServiceTest {
     @Test
     @Order(10)
     void testTransactionHistory() {
-        Account acc = accountService.createAccount(testUserId, "RUB", AccountType.CHECKING);
+        int uid = createExtraUser("history");
+        Account acc = accountService.createAccount(uid, "RUB", AccountType.CHECKING);
         transactionService.deposit(acc.getId(), new BigDecimal("100"), "Депозит 1");
         transactionService.deposit(acc.getId(), new BigDecimal("200"), "Депозит 2");
         transactionService.withdraw(acc.getId(), new BigDecimal("50"), "Снятие 1");
@@ -238,7 +262,8 @@ class AccountServiceTest {
     @Test
     @Order(11)
     void testFrozenAccountCannotTransact() {
-        Account acc = accountService.createAccount(testUserId, "RUB", AccountType.CHECKING);
+        int uid = createExtraUser("frozen");
+        Account acc = accountService.createAccount(uid, "RUB", AccountType.CHECKING);
         transactionService.deposit(acc.getId(), new BigDecimal("500"), null);
 
         accountService.setActive(acc.getId(), false);
@@ -257,7 +282,8 @@ class AccountServiceTest {
     @Test
     @Order(12)
     void testDeleteAccountWithBalance() {
-        Account acc = accountService.createAccount(testUserId, "RUB", AccountType.CHECKING);
+        int uid = createExtraUser("delwithbal");
+        Account acc = accountService.createAccount(uid, "RUB", AccountType.CHECKING);
         transactionService.deposit(acc.getId(), new BigDecimal("100"), null);
 
         assertThrows(IllegalStateException.class,
@@ -271,7 +297,8 @@ class AccountServiceTest {
     @Test
     @Order(13)
     void testDeleteEmptyAccount() {
-        Account acc = accountService.createAccount(testUserId, "USD", AccountType.SAVINGS);
+        int uid = createExtraUser("delempty");
+        Account acc = accountService.createAccount(uid, "USD", AccountType.SAVINGS);
 
         assertDoesNotThrow(() -> accountService.delete(acc.getId()),
                 "Удаление пустого счёта не должно выбрасывать исключение");
@@ -286,7 +313,8 @@ class AccountServiceTest {
     @Test
     @Order(14)
     void testDepositNegativeAmount() {
-        Account acc = accountService.createAccount(testUserId, "RUB", AccountType.CHECKING);
+        int uid = createExtraUser("depneg");
+        Account acc = accountService.createAccount(uid, "RUB", AccountType.CHECKING);
         assertThrows(IllegalArgumentException.class,
                 () -> transactionService.deposit(acc.getId(), new BigDecimal("-100"), null));
     }

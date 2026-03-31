@@ -56,6 +56,21 @@ public class UserService {
      * @throws IllegalArgumentException если данные некорректны или пользователь уже существует
      */
     public User register(String username, String password, String fullName, String email) {
+        return register(username, password, fullName, email, null);
+    }
+
+    /**
+     * Регистрирует нового пользователя с указанием номера телефона.
+     *
+     * @param username уникальное имя пользователя
+     * @param password пароль в открытом виде (будет захэширован)
+     * @param fullName полное имя пользователя
+     * @param email    email адрес
+     * @param phone    номер телефона (может быть null)
+     * @return созданный объект User с присвоенным ID
+     * @throws IllegalArgumentException если данные некорректны или пользователь уже существует
+     */
+    public User register(String username, String password, String fullName, String email, String phone) {
         // Валидация входных данных
         validateUsername(username);
         if (!PasswordUtil.isPasswordStrong(password)) {
@@ -71,8 +86,8 @@ public class UserService {
         }
 
         String sql = """
-                INSERT INTO users (username, password_hash, full_name, email, is_admin)
-                VALUES (?, ?, ?, ?, 0)
+                INSERT INTO users (username, password_hash, full_name, email, is_admin, phone)
+                VALUES (?, ?, ?, ?, 0, ?)
                 """;
 
         try (PreparedStatement pstmt = dbManager.getConnection().prepareStatement(
@@ -81,6 +96,7 @@ public class UserService {
             pstmt.setString(2, PasswordUtil.hash(password));
             pstmt.setString(3, fullName.trim());
             pstmt.setString(4, email != null ? email.trim() : "");
+            pstmt.setString(5, phone);
             pstmt.executeUpdate();
 
             try (ResultSet keys = pstmt.getGeneratedKeys()) {
@@ -193,22 +209,60 @@ public class UserService {
     }
 
     /**
-     * Обновляет данные пользователя (полное имя и email).
+     * Обновляет данные пользователя (полное имя, email и телефон).
      *
      * @param user объект User с обновлёнными полями (id должен быть корректным)
      * @throws RuntimeException при ошибке обновления
      */
     public void update(User user) {
-        String sql = "UPDATE users SET full_name = ?, email = ? WHERE id = ?";
+        String sql = "UPDATE users SET full_name = ?, email = ?, phone = ? WHERE id = ?";
         try (PreparedStatement pstmt = dbManager.getConnection().prepareStatement(sql)) {
             pstmt.setString(1, user.getFullName());
             pstmt.setString(2, user.getEmail());
-            pstmt.setInt(3, user.getId());
+            pstmt.setString(3, user.getPhone());
+            pstmt.setInt(4, user.getId());
             pstmt.executeUpdate();
             logger.info("Обновлены данные пользователя: {}", user.getUsername());
         } catch (SQLException e) {
             logger.error("Ошибка обновления пользователя ID={}", user.getId(), e);
             throw new RuntimeException("Ошибка обновления пользователя: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Обновляет паспортные данные и документы пользователя.
+     *
+     * @param userId              идентификатор пользователя
+     * @param phone               номер телефона
+     * @param passportSeries      серия паспорта
+     * @param passportNumber      номер паспорта
+     * @param passportIssuedBy    кем выдан паспорт
+     * @param passportIssuedDate  дата выдачи паспорта
+     * @param snils               СНИЛС
+     * @param inn                 ИНН
+     */
+    public void updateProfile(int userId, String phone, String passportSeries, String passportNumber,
+                               String passportIssuedBy, String passportIssuedDate,
+                               String snils, String inn) {
+        String sql = """
+                UPDATE users SET phone = ?, passport_series = ?, passport_number = ?,
+                    passport_issued_by = ?, passport_issued_date = ?, snils = ?, inn = ?
+                WHERE id = ?
+                """;
+        try (PreparedStatement pstmt = dbManager.getConnection().prepareStatement(sql)) {
+            pstmt.setString(1, phone);
+            pstmt.setString(2, passportSeries);
+            pstmt.setString(3, passportNumber);
+            pstmt.setString(4, passportIssuedBy);
+            pstmt.setString(5, passportIssuedDate);
+            pstmt.setString(6, snils);
+            pstmt.setString(7, inn);
+            pstmt.setInt(8, userId);
+            pstmt.executeUpdate();
+            logger.info("Обновлён профиль пользователя ID={}", userId);
+        } catch (SQLException e) {
+            logger.error("Ошибка обновления профиля пользователя ID={}", userId, e);
+            throw new RuntimeException("Ошибка обновления профиля: " + e.getMessage(), e);
         }
     }
 
@@ -333,6 +387,41 @@ public class UserService {
         user.setAdmin(rs.getInt("is_admin") == 1);
         user.setBlocked(rs.getInt("is_blocked") == 1);
         user.setCreatedAt(rs.getString("created_at"));
+        // Читаем новые поля (могут отсутствовать в старых БД)
+        user.setPhone(safeGetString(rs, "phone"));
+        user.setPassportSeries(safeGetString(rs, "passport_series"));
+        user.setPassportNumber(safeGetString(rs, "passport_number"));
+        user.setPassportIssuedBy(safeGetString(rs, "passport_issued_by"));
+        user.setPassportIssuedDate(safeGetString(rs, "passport_issued_date"));
+        user.setSnils(safeGetString(rs, "snils"));
+        user.setInn(safeGetString(rs, "inn"));
+        user.setLegalEntityName(safeGetString(rs, "legal_entity_name"));
+        // Читаем тип клиента
+        String clientTypeStr = safeGetString(rs, "client_type");
+        if (clientTypeStr != null && !clientTypeStr.isBlank()) {
+            try {
+                user.setClientType(User.ClientType.valueOf(clientTypeStr));
+            } catch (IllegalArgumentException e) {
+                user.setClientType(User.ClientType.INDIVIDUAL);
+            }
+        }
         return user;
+    }
+
+    /**
+     * Безопасно читает строковое значение столбца из ResultSet.
+     * Возвращает null если столбец отсутствует в результирующем наборе.
+     *
+     * @param rs     ResultSet с данными
+     * @param column имя столбца
+     * @return значение столбца или null
+     */
+    private String safeGetString(ResultSet rs, String column) {
+        try {
+            return rs.getString(column);
+        } catch (SQLException e) {
+            // Столбец может отсутствовать в старой схеме БД
+            return null;
+        }
     }
 }
