@@ -1,3 +1,4 @@
+# Gradle
 .gradle
 **/build/
 !**/src/**/build/
@@ -8,7 +9,7 @@ gradle-app.setting
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
 
-# Avoid ignore Gradle wrappper properties
+# Avoid ignore Gradle wrapper properties
 !gradle-wrapper.properties
 
 # Cache of project
@@ -19,3 +20,40 @@ gradle-app.setting
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+# IntelliJ IDEA
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/caches
+.idea/modules
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse
+.settings/
+.metadata/
+bin/
+local.properties
+
+# Compiled files
+*.class
+*.jar
+!gradle-wrapper.jar
+
+# Logs
+logs/
+*.log
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Test artifacts
+test-results/

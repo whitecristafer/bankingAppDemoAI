@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+    Дашборд пользователя — TabPane с вкладками: Счета, Карты, Контакты, Валюта, Настройки.
+    Контроллер: DashboardController.java
+-->
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="ru.whitecristafer.banking.gui.DashboardController">
+
+    <!-- Верхняя панель -->
+    <top>
+        <HBox style="-fx-background-color: #16213e; -fx-padding: 10 20;" alignment="CENTER_LEFT" spacing="20">
+            <Label text="🏦" style="-fx-font-size: 22px;"/>
+            <Label fx:id="welcomeLabel" text="Добро пожаловать!"
+                   style="-fx-text-fill: #e0e0e0; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="totalBalanceLabel" text=""
+                   style="-fx-text-fill: #27ae60; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+            <Button fx:id="logoutButton" text="Выйти" onAction="#handleLogout"
+                    style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-cursor: hand;"/>
+        </HBox>
+    </top>
+
+    <!-- Основное содержимое — TabPane -->
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE" style="-fx-background-color: #1a1a2e;">
+
+            <!-- Вкладка: Счета -->
+            <Tab text="💳 Счета">
+                <VBox spacing="10" style="-fx-padding: 12; -fx-background-color: #1a1a2e;">
+                    <Label fx:id="statusLabel" text="" style="-fx-font-size: 13px;"/>
+
+                    <TableView fx:id="accountsTable" prefHeight="160">
+                        <columns>
+                            <TableColumn fx:id="colAccountNumber" text="Номер счёта" prefWidth="150"/>
+                            <TableColumn fx:id="colBalance" text="Баланс" prefWidth="120"/>
+                            <TableColumn fx:id="colCurrency" text="Валюта" prefWidth="80"/>
+                            <TableColumn fx:id="colAccountType" text="Тип" prefWidth="110"/>
+                            <TableColumn fx:id="colAccountStatus" text="Статус" prefWidth="100"/>
+                        </columns>
+                    </TableView>
+
+                    <HBox spacing="12">
+                        <VBox spacing="6" HBox.hgrow="ALWAYS" style="-fx-background-color: #16213e; -fx-padding: 12; -fx-background-radius: 6;">
+                            <Label text="💰 Пополнение" style="-fx-text-fill: #27ae60; -fx-font-weight: bold;"/>
+                            <TextField fx:id="depositAmountField" promptText="Сумма"/>
+                            <Button text="Пополнить" onAction="#handleDeposit" maxWidth="Infinity"
+                                    style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        </VBox>
+                        <VBox spacing="6" HBox.hgrow="ALWAYS" style="-fx-background-color: #16213e; -fx-padding: 12; -fx-background-radius: 6;">
+                            <Label text="📤 Снятие" style="-fx-text-fill: #e74c3c; -fx-font-weight: bold;"/>
+                            <TextField fx:id="withdrawAmountField" promptText="Сумма"/>
+                            <Button text="Снять" onAction="#handleWithdraw" maxWidth="Infinity"
+                                    style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        </VBox>
+                        <VBox spacing="6" HBox.hgrow="ALWAYS" style="-fx-background-color: #16213e; -fx-padding: 12; -fx-background-radius: 6;">
+                            <Label text="📨 Перевод" style="-fx-text-fill: #3d85c8; -fx-font-weight: bold;"/>
+                            <TextField fx:id="transferToField" promptText="Номер счёта получателя"/>
+                            <TextField fx:id="transferAmountField" promptText="Сумма"/>
+                            <TextField fx:id="transferDescField" promptText="Описание (необязательно)"/>
+                            <Button text="Перевести" onAction="#handleTransfer" maxWidth="Infinity"
+                                    style="-fx-background-color: #3d85c8; -fx-text-fill: white; -fx-cursor: hand;"/>
+                        </VBox>
+                    </HBox>
+
+                    <Label text="📜 История транзакций" style="-fx-text-fill: #aaaaaa; -fx-font-weight: bold;"/>
+                    <TableView fx:id="transactionsTable" VBox.vgrow="ALWAYS" prefHeight="180">
+                        <columns>
+                            <TableColumn fx:id="colTxType" text="Тип" prefWidth="120"/>
+                            <TableColumn fx:id="colTxAmount" text="Сумма" prefWidth="120"/>
+                            <TableColumn fx:id="colTxDate" text="Дата" prefWidth="160"/>
+                            <TableColumn fx:id="colTxDesc" text="Описание" prefWidth="300"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+
+            <!-- Вкладка: Карты -->
+            <Tab text="💳 Карты">
+                <VBox spacing="10" style="-fx-padding: 12; -fx-background-color: #1a1a2e;">
+                    <TableView fx:id="cardsTable" prefHeight="250">
+                        <columns>
+                            <TableColumn fx:id="colCardNumber" text="Номер карты" prefWidth="180"/>
+                            <TableColumn fx:id="colCardHolder" text="Держатель" prefWidth="160"/>
+                            <TableColumn fx:id="colCardExpiry" text="Срок" prefWidth="80"/>
+                            <TableColumn fx:id="colCardType" text="Тип" prefWidth="100"/>
+                            <TableColumn fx:id="colCardStatus" text="Статус" prefWidth="90"/>
+                        </columns>
+                    </TableView>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <TextField fx:id="cardHolderNameField" promptText="Имя держателя карты (латиница)" prefWidth="280"/>
+                        <Button fx:id="createCardButton" text="Создать карту" onAction="#handleCreateCard"
+                                style="-fx-background-color: #3d85c8; -fx-text-fill: white; -fx-cursor: hand;"/>
+                    </HBox>
+                </VBox>
+            </Tab>
+
+            <!-- Вкладка: Контакты -->
+            <Tab text="👥 Контакты">
+                <VBox spacing="10" style="-fx-padding: 12; -fx-background-color: #1a1a2e;">
+                    <TableView fx:id="contactsTable" prefHeight="250">
+                        <columns>
+                            <TableColumn fx:id="colContactName" text="Имя" prefWidth="160"/>
+                            <TableColumn fx:id="colContactPhone" text="Телефон" prefWidth="140"/>
+                            <TableColumn fx:id="colContactAccount" text="Счёт" prefWidth="160"/>
+                        </columns>
+                    </TableView>
+                    <GridPane hgap="10" vgap="8">
+                        <TextField fx:id="contactNameField" promptText="Имя контакта" GridPane.columnIndex="0" GridPane.rowIndex="0" prefWidth="200"/>
+                        <TextField fx:id="contactPhoneField" promptText="Телефон" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="160"/>
+                        <TextField fx:id="contactAccountField" promptText="Номер счёта" GridPane.columnIndex="2" GridPane.rowIndex="0" prefWidth="160"/>
+                        <Button fx:id="addContactButton" text="Добавить" onAction="#handleAddContact"
+                                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand;"
+                                GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <Button fx:id="deleteContactButton" text="Удалить выбранный" onAction="#handleDeleteContact"
+                                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"
+                                GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    </GridPane>
+                </VBox>
+            </Tab>
+
+            <!-- Вкладка: Валюта -->
+            <Tab text="💱 Валюта">
+                <VBox spacing="14" style="-fx-padding: 20; -fx-background-color: #1a1a2e;">
+                    <Label text="Курсы валют (ЦБ РФ)" style="-fx-text-fill: #e0e0e0; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <HBox spacing="20">
+                        <Label text="USD:" style="-fx-text-fill: #aaaaaa;"/>
+                        <Label fx:id="usdRateLabel" text="—" style="-fx-text-fill: #e0e0e0; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <HBox spacing="20">
+                        <Label text="EUR:" style="-fx-text-fill: #aaaaaa;"/>
+                        <Label fx:id="eurRateLabel" text="—" style="-fx-text-fill: #e0e0e0; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <HBox spacing="20">
+                        <Label text="CNY:" style="-fx-text-fill: #aaaaaa;"/>
+                        <Label fx:id="cnyRateLabel" text="—" style="-fx-text-fill: #e0e0e0; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Период:" style="-fx-text-fill: #aaaaaa;"/>
+                        <ComboBox fx:id="periodComboBox" prefWidth="120"/>
+                        <Button fx:id="refreshRatesButton" text="Обновить курсы" onAction="#handleRefreshRates"
+                                style="-fx-background-color: #3d85c8; -fx-text-fill: white; -fx-cursor: hand;"/>
+                    </HBox>
+                </VBox>
+            </Tab>
+
+            <!-- Вкладка: Настройки -->
+            <Tab text="⚙ Настройки">
+                <VBox spacing="14" style="-fx-padding: 20; -fx-background-color: #1a1a2e;">
+                    <Label text="Настройки интерфейса" style="-fx-text-fill: #e0e0e0; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="Тема:" style="-fx-text-fill: #aaaaaa;"/>
+                        <Button fx:id="themeToggleButton" text="Переключить тему" onAction="#handleThemeToggle"
+                                style="-fx-background-color: #555; -fx-text-fill: white; -fx-cursor: hand;"/>
+                    </HBox>
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="Масштаб шрифта:" style="-fx-text-fill: #aaaaaa; -fx-min-width: 140;"/>
+                        <Slider fx:id="fontScaleSlider" min="0.8" max="1.5" value="1.0" prefWidth="200" showTickLabels="true" showTickMarks="true"/>
+                    </HBox>
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="Масштаб UI:" style="-fx-text-fill: #aaaaaa; -fx-min-width: 140;"/>
+                        <Slider fx:id="uiScaleSlider" min="0.8" max="1.5" value="1.0" prefWidth="200" showTickLabels="true" showTickMarks="true"/>
+                    </HBox>
+                    <Button fx:id="applySettingsButton" text="Применить настройки" onAction="#handleApplySettings"
+                            style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand;"/>
+                </VBox>
+            </Tab>
+
+        </TabPane>
+    </center>
+</BorderPane>

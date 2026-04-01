@@ -1,0 +1,109 @@
+/* Глобальные стили для тёмной темы банковского приложения */
+
+/* Корневой контейнер */
+.root {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-background-color: #1a1a2e;
+}
+
+/* Текстовые поля */
+.text-field, .password-field {
+    -fx-background-color: #0f3460;
+    -fx-text-fill: #e0e0e0;
+    -fx-prompt-text-fill: #666688;
+    -fx-background-radius: 5;
+    -fx-border-color: #3d85c8;
+    -fx-border-radius: 5;
+    -fx-padding: 8;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #6ab0f5;
+}
+
+/* Кнопки */
+.button {
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-padding: 8 16;
+}
+
+.button:hover {
+    -fx-opacity: 0.85;
+}
+
+/* Таблицы */
+.table-view {
+    -fx-background-color: #16213e;
+    -fx-border-color: #2d3a6b;
+}
+
+.table-view .column-header {
+    -fx-background-color: #0f3460;
+    -fx-text-fill: #c0d0ff;
+    -fx-font-weight: bold;
+}
+
+.table-row-cell {
+    -fx-background-color: #16213e;
+    -fx-text-fill: #c8c8e0;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #1a2545;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #3d85c8;
+    -fx-text-fill: white;
+}
+
+/* Метки */
+.label {
+    -fx-text-fill: #c0c0d8;
+}
+
+/* Панель вкладок */
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: #0f3460;
+}
+
+.tab-pane .tab {
+    -fx-background-color: #16213e;
+    -fx-text-fill: #aaaacc;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: #2d3a6b;
+    -fx-text-fill: white;
+}
+
+/* Развёртываемые панели */
+.titled-pane > .title {
+    -fx-background-color: #16213e;
+    -fx-text-fill: #3d85c8;
+    -fx-font-weight: bold;
+}
+
+.titled-pane > .content {
+    -fx-background-color: #1a2545;
+    -fx-border-color: #2d3a6b;
+}
+
+/* ComboBox */
+.combo-box {
+    -fx-background-color: #0f3460;
+    -fx-text-fill: white;
+    -fx-border-color: #3d85c8;
+    -fx-border-radius: 5;
+}
+
+/* Чекбокс */
+.check-box .mark {
+    -fx-background-color: white;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #3d85c8;
+}

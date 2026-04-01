@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<!--
+    Экран авторизации банковского приложения.
+    Контроллер: LoginController.java
+    Отображает форму ввода логина и пароля.
+-->
+<VBox alignment="CENTER" spacing="20" style="-fx-background-color: #1a1a2e;"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="ru.whitecristafer.banking.gui.LoginController">
+
+    <padding><Insets top="60" right="80" bottom="60" left="80"/></padding>
+
+    <!-- Заголовок -->
+    <Label text="🏦 БАНКОВСКОЕ ПРИЛОЖЕНИЕ" style="-fx-text-fill: #e0e0e0; -fx-font-size: 28px; -fx-font-weight: bold;"/>
+    <Label text="Система управления счетами" style="-fx-text-fill: #888888; -fx-font-size: 14px;"/>
+
+    <!-- Форма авторизации -->
+    <VBox alignment="CENTER" spacing="15" style="-fx-background-color: #16213e; -fx-background-radius: 10; -fx-padding: 40;">
+        <maxWidth>420</maxWidth>
+
+        <Label text="Вход в систему" style="-fx-text-fill: #3d85c8; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+        <VBox spacing="5">
+            <Label text="Имя пользователя" style="-fx-text-fill: #aaaaaa; -fx-font-size: 12px;"/>
+            <TextField fx:id="usernameField" promptText="Введите логин"
+                       style="-fx-background-color: #0f3460; -fx-text-fill: white; -fx-prompt-text-fill: #666666;
+                              -fx-background-radius: 5; -fx-font-size: 14px; -fx-pref-height: 40;"/>
+        </VBox>
+
+        <VBox spacing="5">
+            <Label text="Пароль" style="-fx-text-fill: #aaaaaa; -fx-font-size: 12px;"/>
+            <PasswordField fx:id="passwordField" promptText="Введите пароль"
+                           style="-fx-background-color: #0f3460; -fx-text-fill: white; -fx-prompt-text-fill: #666666;
+                                  -fx-background-radius: 5; -fx-font-size: 14px; -fx-pref-height: 40;"/>
+        </VBox>
+
+        <Label fx:id="errorLabel" text="" wrapText="true"
+               style="-fx-text-fill: #e74c3c; -fx-font-size: 12px;"/>
+
+        <Button fx:id="loginButton" text="ВОЙТИ" onAction="#handleLogin"
+                style="-fx-background-color: #3d85c8; -fx-text-fill: white; -fx-font-size: 14px;
+                       -fx-font-weight: bold; -fx-background-radius: 5; -fx-pref-height: 45; -fx-cursor: hand;"
+                maxWidth="Infinity"/>
+
+        <Button text="Регистрация" onAction="#handleRegister"
+                style="-fx-background-color: transparent; -fx-text-fill: #3d85c8; -fx-font-size: 13px;
+                       -fx-cursor: hand; -fx-border-color: #3d85c8; -fx-border-radius: 5; -fx-pref-height: 35;"
+                maxWidth="Infinity"/>
+    </VBox>
+
+    <Label text="По умолчанию: admin / admin123" style="-fx-text-fill: #555555; -fx-font-size: 11px;"/>
+    <Label text="© 2024 whitecristafer — BankingApp MVP" style="-fx-text-fill: #333333; -fx-font-size: 10px;"/>
+</VBox>

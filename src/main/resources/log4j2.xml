@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Конфигурация Log4j2 для банковского приложения.
+    Логи сохраняются в директорию AppData/BankingApp/logs/
+    Все ошибки (ERROR и выше) записываются в отдельный файл errors.log
+    Используется паттерн ротации файлов по дате.
+-->
+<Configuration status="WARN" monitorInterval="30">
+
+    <Properties>
+        <!-- Путь к директории логов — переопределяется из Main.java через системное свойство -->
+        <Property name="LOG_DIR">${sys:banking.logs.dir:-logs}</Property>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
+        <Property name="ERROR_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n%throwable</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- Вывод в консоль (для разработки) -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <!-- В TUI-режиме консольный вывод нежелателен, но для отладки полезен -->
+        </Console>
+
+        <!-- Файл с полными логами, ротация по дате -->
+        <RollingFile name="FileAppender"
+                     fileName="${LOG_DIR}/banking.log"
+                     filePattern="${LOG_DIR}/banking-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <!-- Ротация каждый день в полночь -->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <!-- Ротация при достижении 10 МБ -->
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <!-- Хранить не более 30 файлов архивов -->
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+
+        <!-- Отдельный файл только для ошибок (ERROR и FATAL) -->
+        <RollingFile name="ErrorFileAppender"
+                     fileName="${LOG_DIR}/errors.log"
+                     filePattern="${LOG_DIR}/errors-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${ERROR_PATTERN}"/>
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="5MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- Логгер для кода приложения — уровень INFO -->
+        <Logger name="ru.whitecristafer.banking" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="ErrorFileAppender"/>
+        </Logger>
+
+        <!-- Логгер для SQLite JDBC — только предупреждения -->
+        <Logger name="org.sqlite" level="WARN" additivity="false">
+            <AppenderRef ref="FileAppender"/>
+        </Logger>
+
+        <!-- Корневой логгер — только предупреждения и ошибки -->
+        <Root level="WARN">
+            <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="ErrorFileAppender"/>
+        </Root>
+    </Loggers>
+
+</Configuration>

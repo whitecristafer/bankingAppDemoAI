@@ -1,0 +1,117 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+group = 'ru.whitecristafer'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+javafx {
+    version = "17"
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // SQLite JDBC драйвер для локального хранения данных
+    implementation 'org.xerial:sqlite-jdbc:3.45.1.0'
+
+    // Log4j2 для логирования (логи + исключения)
+    implementation 'org.apache.logging.log4j:log4j-api:2.23.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.23.1'
+
+    // BCrypt для безопасного хэширования паролей
+    implementation 'at.favre.lib:bcrypt:0.10.2'
+
+    // Lanterna для TUI (цветной терминал, навигация стрелками)
+    implementation 'com.googlecode.lanterna:lanterna:3.1.1'
+
+    // Тестирование JUnit 5
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation 'org.mockito:mockito-core:5.10.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.10.0'
+}
+
+application {
+    mainClass = 'ru.whitecristafer.banking.Main'
+    // Добавляем модульные параметры для JavaFX
+    applicationDefaultJvmArgs = [
+        '--add-opens', 'javafx.graphics/com.sun.javafx.application=ALL-UNNAMED',
+        '--add-exports', 'javafx.graphics/com.sun.javafx.application=ALL-UNNAMED'
+    ]
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        showStandardStreams = false
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'ru.whitecristafer.banking.Main',
+            'Implementation-Version': version
+        )
+    }
+}
+
+// Задача для создания fat-jar со всеми зависимостями (для запуска без classpath)
+tasks.register('fatJar', Jar) {
+    group = 'build'
+    description = 'Создаёт исполняемый JAR со всеми зависимостями'
+    archiveBaseName = 'bankingApp'
+    archiveClassifier = 'all'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes(
+            'Main-Class': 'ru.whitecristafer.banking.Main',
+            'Implementation-Version': version
+        )
+    }
+
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    with jar
+}
+
+// Задача для запуска GUI без IDEA
+tasks.register('runGui', JavaExec) {
+    group = 'application'
+    description = 'Запускает приложение в режиме GUI'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'ru.whitecristafer.banking.Main'
+    args = ['--gui']
+    jvmArgs = [
+        '--add-opens', 'javafx.graphics/com.sun.javafx.application=ALL-UNNAMED',
+        '--add-exports', 'javafx.graphics/com.sun.javafx.application=ALL-UNNAMED'
+    ]
+}
+
+// Задача для запуска TUI без IDEA
+tasks.register('runTui', JavaExec) {
+    group = 'application'
+    description = 'Запускает приложение в режиме TUI'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'ru.whitecristafer.banking.Main'
+    args = ['--tui']
+    standardInput = System.in
+}
